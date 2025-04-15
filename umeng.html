@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活动分享 - 打开App</title>
+    <style>
+        /* 复用之前的 CSS 样式 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 90%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        p {
+            color: #555;
+            margin-bottom: 25px;
+        }
+        .action-button { /* 主要的 ULink 触发按钮 */
+            background-color: #28a745; /* Green color */
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px; /* Pill shape */
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            margin-bottom: 20px;
+            display: block;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .action-button:hover {
+            background-color: #218838;
+        }
+        .clipboard-area {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        #clipboardOutput {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9em;
+            background-color: #f9f9f9;
+            color: #333;
+            -webkit-user-select: all;
+            -moz-user-select: all;
+            -ms-user-select: all;
+            user-select: all;
+            text-align: left; /* Align text left for better readability */
+            min-height: 40px; /* Ensure it has some height even when empty */
+            box-sizing: border-box;
+             /* Make it look like output, not input */
+            overflow-wrap: break-word; /* Wrap long text */
+        }
+         #copyManualButton {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+        #copyManualButton:hover {
+            background-color: #0056b3;
+        }
+        #copyFeedback {
+            margin-top: 8px;
+            color: green;
+            font-size: 0.9em;
+            height: 1.2em;
+        }
+        /* Custom Download Style Elements (initially hidden perhaps) */
+        #downloadStyle {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #download-window {
+            width: 70%;
+            max-width: 350px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative; /* Needed for absolute positioning of close button */
+            text-align: center;
+        }
+         #download-window .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 1.2em;
+            color: #aaa;
+            line-height: 1;
+         }
+         #download-window .close-btn:hover {
+            color: #333;
+         }
+        #download-window p {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        #download-window button {
+           width: 80%;
+           height: 40px;
+           background-color: #3b82fe;
+           color: #fff;
+           border-radius: 20px;
+           border: none;
+           margin: 0 auto;
+           display: block;
+           cursor: pointer;
+           font-size: 1em;
+        }
+         #download-window button:hover {
+             background-color: #2066d3;
+         }
+
+    </style>
+    <script type="text/javascript" charset="UTF-8" src="https://umsdk.com/UMPlus/UMPlus.min.js"></script> 
+    </head>
+<body>
+    <div class="container">
+        <h1>🚀 快来体验我们的App！ 🚀</h1>
+        <p>点击下方按钮，即可轻松打开App或前往下载。</p>
+
+        <button id="Go_TO_APP" class="action-button">打开或下载App</button>
+
+        <div class="clipboard-area">
+            <label for="clipboardOutput" style="display:block; margin-bottom: 5px; font-weight: bold; color: #333;">分享信息 (供App内使用):</label>
+            <div id="clipboardOutput" role="textbox" aria-readonly="true" contenteditable="false"></div> 
+            <button id="copyManualButton">复制信息</button>
+            <p id="copyFeedback"></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const clipboardOutput = document.getElementById('clipboardOutput');
+            const copyManualButton = document.getElementById('copyManualButton');
+            const copyFeedback = document.getElementById('copyFeedback');
+
+            // --- 配置信息 ---
+            // 1. 替换成你在友盟后台 -> 用户渠道 -> 创建推广活动 -> 生成的 Link ID
+            const ulinkLinkID = "usr11htcjducb9c6"; // <--- 在这里替换你的 Link ID
+
+            // 2. 确认你的应用存储追踪码 (tc) 使用的 localStorage Key
+            const localStorageTrackCodeKey = "track_code"; // <--- 如果你的 Key 不同，请修改这里
+
+            // --- 从 localStorage 读取 tc ---
+            const trackCode = localStorage.getItem(localStorageTrackCodeKey);
+
+            // --- 自定义下载/打开失败处理函数 ---
+            function myDownloadStyle(defaultAction, LinkInstance) {
+                 console.log("myDownloadStyle triggered. OS:", LinkInstance.env.os, "Download URL:", LinkInstance.solution?.downloadUrl);
+
+                // 解决安卓未安装，无法下载跳转问题 (根据 React 代码逻辑)
+                if (LinkInstance.env.os === 'android' && LinkInstance.solution?.downloadUrl) {
+                     console.log("Android detected, redirecting to download URL:", LinkInstance.solution.downloadUrl);
+                     window.location.href = LinkInstance.solution.downloadUrl;
+                     return; // 阻止后续默认行为或弹窗
+                 }
+
+                // -------------- 原 React 代码中的自定义弹窗逻辑 (可选) --------------
+                 // 如果你想使用自定义弹窗而不是直接跳转 (非安卓或安卓无下载链接时)
+                 const useCustomDownloadPopup = false; // 设置为 true 以启用下面的弹窗
+
+                 if (useCustomDownloadPopup && LinkInstance.solution?.downloadUrl) {
+                     // 检查是否已存在弹窗
+                     if (document.getElementById('downloadStyle')) {
+                         return;
+                     }
+
+                     const downloadStyleDom = document.createElement('div');
+                     downloadStyleDom.setAttribute('id', 'downloadStyle');
+                     downloadStyleDom.innerHTML = `
+                         <div id="download-window">
+                             <div class="close-btn" onclick="window.ulinkCloseDownloadTip()">&times;</div>
+                             <p>应用未安装，请点击下方按钮跳转至商店进行下载!</p>
+                             <button onclick="window.ulinkOpenDownload()">立即下载</button>
+                         </div>`;
+
+                     // 将关闭和打开函数挂载到 window
+                     window.ulinkCloseDownloadTip = function () {
+                         const element = document.getElementById('downloadStyle');
+                         if (element) {
+                             element.remove();
+                         }
+                     };
+                     window.ulinkOpenDownload = function () {
+                         console.log("Download button clicked. Redirecting to:", LinkInstance.solution.downloadUrl);
+                         window.location.href = LinkInstance.solution.downloadUrl;
+                         window.ulinkCloseDownloadTip(); // 点击下载后也关闭弹窗
+                     };
+
+                     document.body.appendChild(downloadStyleDom);
+                 } else if (LinkInstance.env.os !== 'android') {
+                     // 对于非安卓设备，如果不使用自定义弹窗，可以调用默认行为
+                     // 或根据需要处理，例如直接跳转下载链接（如果存在）
+                     console.log("Non-Android or no custom popup. Calling defaultAction.");
+                     defaultAction(); // 对于iOS等，默认行为通常是跳转App Store
+                 } else {
+                    // 安卓走到这里说明没有 downloadUrl 或不满足直接跳转条件，可以调用 defaultAction
+                    // defaultAction 可能会尝试其他唤起方式或显示内置提示
+                     console.log("Android case not handled by direct redirect or custom popup. Calling defaultAction.");
+                    defaultAction();
+                 }
+                 // -------------- 自定义弹窗逻辑结束 --------------
+
+                 // 如果上面所有逻辑都不执行，并且你不想执行任何操作，就直接 return;
+                 // return; 
+                 // 如果你想在所有自定义逻辑后总是执行默认操作（除非已 return），则调用：
+                 // defaultAction();
+            }
+
+            // --- 初始化 U-Link ---
+            if (window.ULink) {
+                console.log("ULink SDK found. Initializing...");
+                try {
+                   window.ULink({
+                        id: ulinkLinkID,
+                        data: { // 将 tc 放入 data 对象
+                            tc: trackCode || "", // 如果 tc 不存在，传空字符串
+                        },
+                        selector: "#Go_TO_APP", // 绑定到按钮
+                        timeout: 2000,
+                        useOpenInBrowerTips: "default", // 可以使用默认的浏览器提示
+                        lazy: false, // 不延迟加载
+                        auto: false,  // 不自动执行，由 selector 点击触发
+                        useClipboard: false, // 根据你的 React 代码设置为 false
+                        proxyOpenDownload: myDownloadStyle, // 使用自定义下载处理函数
+                        onready: function (ctx) {
+                            console.log("ULink onready callback. Context:", ctx);
+                            let textToCopy = "";
+                            var u = navigator.userAgent;
+                            var isAndroid = u.indexOf("Android") > -1 || u.indexOf("Adr") > -1;
+
+                            // 安卓特殊处理：复制 tc 参数
+                            if (isAndroid) {
+                                console.log("Android detected in onready.");
+                                if (trackCode) {
+                                    textToCopy = "tc=" + trackCode;
+                                    console.log("Android + trackCode found. Setting text to copy:", textToCopy);
+                                } else {
+                                    console.log("Android, but no trackCode found in localStorage.");
+                                }
+                            }
+                            
+                            // 如果不是安卓，或者安卓没有 tc，尝试使用 ULink 提供的 clipboardToken
+                            if (!textToCopy && ctx.solution?.clipboardToken) {
+                                textToCopy = ctx.solution.clipboardToken;
+                                console.log("Using clipboardToken:", textToCopy);
+                            }
+
+                            // 更新页面上的显示区域
+                            clipboardOutput.textContent = textToCopy || "（无可用分享信息）"; // 显示获取到的文本或提示
+                            if (!textToCopy) {
+                                copyManualButton.disabled = true; // 如果没有内容，禁用复制按钮
+                                copyManualButton.style.opacity = 0.5;
+                            } else {
+                                copyManualButton.disabled = false;
+                                copyManualButton.style.opacity = 1;
+                            }
+                        },
+                        // 可以添加 onerror 回调来处理初始化错误
+                        onerror: function(error) {
+                            console.error("ULink initialization error:", error);
+                            clipboardOutput.textContent = "ULink 初始化失败";
+                            copyManualButton.disabled = true;
+                            copyManualButton.style.opacity = 0.5;
+                        }
+                    });
+                } catch (e) {
+                     console.error("Error during ULink initialization:", e);
+                     clipboardOutput.textContent = "ULink 调用出错";
+                     copyManualButton.disabled = true;
+                     copyManualButton.style.opacity = 0.5;
+                }
+
+            } else {
+                console.error("ULink SDK not loaded!");
+                clipboardOutput.textContent = "ULink SDK 加载失败";
+                // 禁用主要按钮和复制按钮
+                 const actionButton = document.getElementById('Go_TO_APP');
+                 if(actionButton) {
+                    actionButton.disabled = true;
+                    actionButton.style.opacity = 0.5;
+                    actionButton.textContent = "加载失败";
+                 }
+                copyManualButton.disabled = true;
+                copyManualButton.style.opacity = 0.5;
+            }
+
+            // --- 手动复制按钮逻辑 ---
+            copyManualButton.addEventListener('click', () => {
+                const textToCopy = clipboardOutput.textContent;
+                if (!textToCopy || textToCopy === "（无可用分享信息）" || textToCopy.includes("失败") || textToCopy.includes("出错")) {
+                    copyFeedback.textContent = '没有可复制的内容';
+                    copyFeedback.style.color = 'orange';
+                     setTimeout(() => { copyFeedback.textContent = ''; }, 2000);
+                    return;
+                }
+
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    copyFeedback.textContent = '✅ 信息已复制!';
+                    copyFeedback.style.color = 'green';
+                    copyManualButton.textContent = '已复制!';
+                    setTimeout(() => {
+                        copyManualButton.textContent = '复制信息';
+                        copyFeedback.textContent = '';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('手动复制失败: ', err);
+                    copyFeedback.textContent = '❌ 复制失败，请手动选择复制。';
+                    copyFeedback.style.color = 'red';
+                     setTimeout(() => { copyFeedback.textContent = ''; }, 3000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
