@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>趣悦时光 - 阅读无限可能</title>
+
+    <script src="https://g.alicdn.com/jssdk/u-link/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --secondary-color: #2C3E50;
+            --accent-color: #E74C3C;
+            --background-color: #F5F6FA;
+            --text-color: #2C3E50;
+            --light-text: #7F8C8D;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--light-text);
+            font-size: 1.2rem;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--primary-color), #2980B9);
+            color: white;
+            padding: 60px 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .hero-content h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .invite-code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            display: inline-block;
+        }
+
+        .code {
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-top: 10px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: var(--light-text);
+        }
+
+        .invite-section {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .invite-steps {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        .step {
+            flex: 1;
+            min-width: 200px;
+            margin: 20px;
+            padding: 20px;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-weight: bold;
+        }
+
+        .share-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .share-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .download-section {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .qr-code img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .hero-content h2 {
+                font-size: 1.5rem;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .invite-steps {
+                flex-direction: column;
+            }
+
+            .step {
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>趣悦时光</h1>
+            <p class="subtitle">遇见更好的阅读体验</p>
+        </header>
+
+        <section class="hero">
+            <div class="hero-content">
+                <h2>海量小说，免费畅读</h2>
+                <p>绑定邀请码，解锁更多精彩内容</p>
+                <div class="invite-code">
+                    <span>邀请码：</span>
+                    <div id="invite_code" class="code"></div>
+                </div>
+            </div>
+        </section>
+
+
+        <section class="download-section">
+            <h2>立即下载，开启阅读之旅</h2>
+            <div class="qr-code" id="qrcode"></div>
+            <p>扫码或点击按钮打开 App 或下载</p>
+            <br>
+            <button class="share-btn" id="openAppBtn">打开 App</button>
+        </section>
+
+        <section class="features">
+            <div class="feature-card">
+                <div class="feature-icon">📚</div>
+                <h3>海量书库</h3>
+                <p>10万+精选小说，持续更新</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3>多端同步</h3>
+                <p>随时随地，想读就读</p>
+            </div>
+        </section>
+
+        <!-- <section class="invite-section">
+            <h2>邀请好友，共享阅读</h2>
+            <div class="invite-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <p>分享邀请码给好友</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <p>好友注册并使用邀请码</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <p>双方获得会员奖励</p>
+                </div>
+            </div>
+        </section> -->
+
+    </div>
+    
+  <script>
+    // 获取URL参数
+    const params = new URLSearchParams(window.location.search);
+    const invite_id = params.get("invite_id") || "";
+    const invite_code = params.get("invite_code") || "";
+    const channel = params.get("channel") || "default";
+
+    document.getElementById('invite_code').innerText = invite_code
+
+    // 设置你的 LinkID（U-Link 后台生成）
+    const linkID = "usr153q43aoechtn";
+
+    // 生成唯一标识符
+    let oid = '';
+    if (localStorage && localStorage.setItem && localStorage.getItem) {
+      oid = localStorage.getItem('_umeng_oid') || 
+            (+new Date()).toString(36) + Math.random().toString(36).substr(2, 6);
+      localStorage.setItem('_umeng_oid', oid);
+    }
+
+    // 设置追踪信息
+    ULink.tracker.setMetaInfo({
+      oid: 'umtestid_' + oid,
+      nickname: '邀请用户',
+      trackurl: location.href,
+    });
+
+    // 页面追踪
+    ULink.tracker.enter({ 
+      page_name: document.title, 
+      page: location.href 
+    }, function() {
+      // 获取追踪码
+      ULink.tracker.getNextTrackCode(function(data) {
+        console.log('新的追踪码:', data);
+      });
+
+      // 初始化 ULink
+      ULink({
+        id: linkID,
+        data: {
+          invite_id: invite_id,
+          invite_code: invite_code,
+          channel: channel
+        },
+        selector: '#openAppBtn',
+        useOpenInBrowerTips: 'default',
+        onready: function(ctx) {
+          console.log('准备就绪:', ctx);
+          // 生成二维码
+          new QRCode(document.getElementById("qrcode"), {
+            text: ctx.solution.downloadUrl,
+            width: 200,
+            height: 200
+          });
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
